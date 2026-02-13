@@ -116,17 +116,18 @@ def detect_compiler_type() -> str:
 
     return 'gcc' # Default fallback
 
-def get_cflags(afdo_path:Path, instrumentation:bool=True, compiler_type:str|None=None, native:bool=True)->List[str]:
-    afdo_path                                = afdo_path.resolve() # just in case
+def get_cflags(afdo_path:Path|None=None, instrumentation:bool=True, compiler_type:str|None=None, native:bool=True)->List[str]:
+    afdo_path                                = afdo_path.resolve() if afdo_path else None # just in case
     compiler_type       :str                 = compiler_type or detect_compiler_type()
     instrumentation_args:Dict[str,List[str]] = {
             'clang': ['-gmlt', '-fdebug-info-for-profiling', ],
             'gcc'  : ['-g1',   '-fno-eliminate-unused-debug-types', ],
     }
-    instrumentated_args :Dict[str,List[str]] = {
+    if afdo_path:
+        instrumentated_args :Dict[str,List[str]] = {
             'clang': [f'-fprofile-sample-use={afdo_path}', ], # '-Wno-missing-profile'
             'gcc'  : [f'-fauto-profile={afdo_path}', ],
-    }
+        }
     args                :List[str]           = []
     if native:
         #args.extend(get_arch_flags(compiler_type))
@@ -135,17 +136,17 @@ def get_cflags(afdo_path:Path, instrumentation:bool=True, compiler_type:str|None
         _args           :List[str]           = instrumentation_args[compiler_type]
         args.extend(_args)
     
-    if afdo_path.exists():
+    if afdo_path and afdo_path.exists():
         logging.info(f'found profile: {afdo_path}')
         assert afdo_path.is_file()
         _args           :List[str]           = instrumentated_args[compiler_type]
         args.extend(_args)
         return args
-    assert not afdo_path.exists()
+    assert not afdo_path or not afdo_path.exists()
     logging.warn(f'no profile: {afdo_path}')
     return args
 
-def get_build_env(afdo_path: Path) -> Dict[str, str]:
+def get_build_env(afdo_path: Path|None=None) -> Dict[str, str]:
     """
     Merges AFDO flags into existing CFLAGS/CXXFLAGS using shlex to ensure
     proper quoting and to avoid redundant flag spam.
@@ -262,6 +263,23 @@ def get_best_optimization_flags() -> List[str]:
     #flags.append('-mavx2') # NOTE what if we don't have it ?
 
     return flags
+
+def apply_build_env(afdo_path: Path|None=None) -> None:
+    """
+    Analyzes the hardware and AFDO state, then injects the resulting
+    flags into the current process's os.environ.
+
+    All subsequent subprocess.run/Popen calls will inherit these flags.
+    """
+    new_env = get_build_env(afdo_path)
+
+    # We update os.environ in-place.
+    # This affects the current process and all future children.
+    os.environ.update(new_env)
+
+    logging.info("Build environment applied to current process.")
+    logging.debug(f"CFLAGS: {os.environ.get('CFLAGS')}")
+    logging.debug(f"CXXFLAGS: {os.environ.get('CXXFLAGS')}")
 
 def main()->None:
     print(get_cflags(Path() / 'test.afdo'))
