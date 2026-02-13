@@ -1,0 +1,9 @@
+git
+github
+build
+setuptools
+mdutils
+tomllib
+tomli_w
+pipreqs
+Cython
