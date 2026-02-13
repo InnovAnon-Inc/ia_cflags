@@ -28,13 +28,13 @@ import tomllib
 from types       import *
 from typing      import *
 
-import build
-import git
-import github # FIXME unused ???? !!!!!!! how to create remote repo ?
-import mdutils
-import pipreqs
-#import tomli
-import tomli_w
+#import build
+#import git
+#import github # FIXME unused ???? !!!!!!! how to create remote repo ?
+#import mdutils
+#import pipreqs
+##import tomli
+#import tomli_w
 
 def merge_compiler_flags()->None:
     """
