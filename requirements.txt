@@ -1,9 +1,5 @@
-git
-github
-build
-setuptools
-mdutils
-tomllib
-tomli_w
-pipreqs
-Cython
+tomllib --no-binary :all:
+PyInstaller --no-binary :all:
+ia_package --no-binary :all:
+setuptools --no-binary :all:
+Cython --no-binary :all:

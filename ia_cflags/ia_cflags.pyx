@@ -36,44 +36,44 @@ from typing      import *
 ##import tomli
 #import tomli_w
 
-def merge_compiler_flags()->None:
-    """
-    Parses current and env flags into a key-value map to handle overrides 
-    (e.g., -O2 -> -O3) and ensures 'Last-In-Wins' behavior.
-    """
-    target_keys = ['OPT', 'CFLAGS', 'PY_CFLAGS', 'PY_CORE_CFLAGS', 'CONFIGURE_CFLAGS', 'LDSHARED']
-    cvars = sysconfig.get_config_vars()
-
-    def tokenize_to_dict(flag_list):
-        """Converts flags into a dict for easy overriding."""
-        result = {}
-        # We use a placeholder for flags that don't take arguments (like -pipe)
-        for f in flag_list:
-            if f.startswith('-O'): result['-O'] = f
-            elif f.startswith('-march='): result['-march'] = f
-            elif f.startswith('-mtune='): result['-mtune'] = f
-            elif f.startswith('-g'): result['-g'] = f  # catches -g, -g0, -g3
-            else: result[f] = None
-        return result
-
-    # 1. Capture Environment Intent
-    env_flags = shlex.split(os.environ.get('CFLAGS', ''))
-    env_overrides = tokenize_to_dict(env_flags)
-
-    for key in target_keys:
-        if key not in cvars: continue
-        
-        # 2. Tokenize existing Python defaults
-        current_flags = shlex.split(cvars[key])
-        flag_dict = tokenize_to_dict(current_flags)
-
-        # 3. Apply Overrides (Environment values replace Python defaults)
-        flag_dict.update(env_overrides)
-
-        # 4. Reconstruct the string
-        # If value is None, it's a standalone flag; otherwise, it's the full string (-O3)
-        final_flags = [f if v is None else v for f, v in flag_dict.items()]
-        cvars[key] = " ".join(final_flags)
+#def merge_compiler_flags()->None:
+#    """
+#    Parses current and env flags into a key-value map to handle overrides 
+#    (e.g., -O2 -> -O3) and ensures 'Last-In-Wins' behavior.
+#    """
+#    target_keys = ['OPT', 'CFLAGS', 'PY_CFLAGS', 'PY_CORE_CFLAGS', 'CONFIGURE_CFLAGS', 'LDSHARED']
+#    cvars = sysconfig.get_config_vars()
+#
+#    def tokenize_to_dict(flag_list):
+#        """Converts flags into a dict for easy overriding."""
+#        result = {}
+#        # We use a placeholder for flags that don't take arguments (like -pipe)
+#        for f in flag_list:
+#            if f.startswith('-O'): result['-O'] = f
+#            elif f.startswith('-march='): result['-march'] = f
+#            elif f.startswith('-mtune='): result['-mtune'] = f
+#            elif f.startswith('-g'): result['-g'] = f  # catches -g, -g0, -g3
+#            else: result[f] = None
+#        return result
+#
+#    # 1. Capture Environment Intent
+#    env_flags = shlex.split(os.environ.get('CFLAGS', ''))
+#    env_overrides = tokenize_to_dict(env_flags)
+#
+#    for key in target_keys:
+#        if key not in cvars: continue
+#        
+#        # 2. Tokenize existing Python defaults
+#        current_flags = shlex.split(cvars[key])
+#        flag_dict = tokenize_to_dict(current_flags)
+#
+#        # 3. Apply Overrides (Environment values replace Python defaults)
+#        flag_dict.update(env_overrides)
+#
+#        # 4. Reconstruct the string
+#        # If value is None, it's a standalone flag; otherwise, it's the full string (-O3)
+#        final_flags = [f if v is None else v for f, v in flag_dict.items()]
+#        cvars[key] = " ".join(final_flags)
 
 def detect_compiler_type() -> str:
     """
@@ -280,6 +280,9 @@ def apply_build_env(afdo_path: Path|None=None) -> None:
     logging.info("Build environment applied to current process.")
     logging.debug(f"CFLAGS: {os.environ.get('CFLAGS')}")
     logging.debug(f"CXXFLAGS: {os.environ.get('CXXFLAGS')}")
+
+    # TODO
+    #PIP_NO_BINARY=all
 
 def main()->None:
     print(get_cflags(Path() / 'test.afdo'))

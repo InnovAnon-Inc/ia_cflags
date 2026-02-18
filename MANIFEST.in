@@ -4,6 +4,7 @@ include requirements.txt
 include pyproject.toml
 include setup.py
 include version.py
+include *./__main__.py
 
 # Include all Cython/C++ source across the entire tree
 global-include *.pyx

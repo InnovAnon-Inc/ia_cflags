@@ -1,9 +1,18 @@
 [build-system]
 requires = [
+    "build",
     "Cython",
+    "dotenv",
+    "GitPython",
+    "pipreqs",
+    "PyGithub",
+    "mdutils",
     "setuptools>=61.0.0",
     "setuptools-scm>=8.0",
+    "tomli_w",
     "wheel",
+    "ia_cflags @ git+https://github.com/InnovAnon-Inc/ia_cflags.git@main",
+    "ia_package @ git+https://github.com/InnovAnon-Inc/ia_package.git@main",
 ]
 build-backend = "setuptools.build_meta"
 
