@@ -6,6 +6,7 @@ requires = [
     "GitPython",
     "pipreqs",
     "PyGithub",
+    "PyInstaller",
     "mdutils",
     "setuptools>=61.0.0",
     "setuptools-scm>=8.0",
